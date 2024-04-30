@@ -1,0 +1,134 @@
+# docker-compose up --build -d
+# docker-compose up -d
+version: "3.4"
+#Mini Data Platform by @xploiterx
+services:
+  #Data Science
+  jupyter:
+    #build: ./services/jupyter-spark/
+    image: carlsvelzm/jupyter-all-spark:latest
+    container_name: "jupyter-Build"
+    #network_mode: "host"
+    user: root
+    environment: 
+      - CHOWN_EXTRA=/home/jovyan/work/
+      - CHOWN_EXTRA_OPTS=-R
+    env_file:
+      - ./config/jupyter.env
+      - ./config/minio.env
+      - ./config/postgres.env
+    restart: always
+    ports:
+      - 8888:8888
+    volumes:
+      #- /home/coder/notebooks:/home/jovyan/work
+      - ./notebooks:/home/jovyan/work
+    entrypoint: sh -c 'start-notebook.sh --NotebookApp.token=$$JUPYTER_PASSWORD'
+    #Start in http://127.0.0.1:8888/lab?token=m1n1lake
+
+  # Model Storage
+  minio:
+    container_name: "minio"
+    restart: "always"
+    image: quay.io/minio/minio:RELEASE.2022-08-26T19-53-15Z
+    env_file:
+        - ./config/minio.env
+    volumes:
+        - minio_volume:/data
+    ports:
+        - 9000:9000
+        - 9001:9001
+    #command: server /data 
+    command: server /data --console-address ":9001"
+    #command: server --console-address ":9001" http://minio/data
+#     command: server --console-address :9001 /data
+  
+  #Relational Database
+  # docker volume prune
+  # docker volume rm mini-data-lake_postgres_volume
+  # docker-compose rm
+  # La instrucción de arriba elimina todos los volumenes debe tenerse precaución al usarla
+  postgres:
+    image: z2hx/postgresql:latest
+    #build: services/postgresql
+    restart: "always"
+    container_name: postgres
+    #network_mode: "host"
+    env_file:
+      - ./config/postgres.env
+      - ./config/superset_database.env
+      - ./config/airflow_database.env
+      - ./config/shared_database.env
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+#      - ./services/postgresql/init/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
+
+  # Database explorer
+  pgadmin:
+    container_name: "pgadmin"
+    image: dpage/pgadmin4
+    env_file:
+      - ./config/pgadmin.env
+    volumes:
+      #- pgadmin_volume:/root/.pgadmin
+        - pgadmin_volume:/var/lib/pgadmin
+    ports:
+      - 5050:80
+    restart: "always"
+
+ # API
+  # fastapi:
+  #   container_name: "fastapi"
+  #   restart: "always"
+  #   build: services/fastapi
+  #   depends_on:
+  #       - postgres
+  #   env_file:
+  #     - ./config/minio.env
+  #   volumes:
+  #     - ./services/fastapi/app:/app
+  #     - ./services/fastapi/html:/html
+  #   ports:
+  #     - 80:80
+  # Visualization
+  superset:
+    image: z2hx/superset
+    # build:
+    #   context: ./services/superset/
+    #   #network: "host"
+    container_name: "superset"
+    restart: "always"
+    # depends_on:
+    #     - fastapi
+    env_file:
+        - ./config/superset_container.env
+        - ./config/superset_database.env
+    ports:
+      - 8088:8088
+  # Scheduling
+  airflow:
+    container_name: "airflow"
+    restart: "always"
+    # build: 
+    #   context: services/airflow
+    #   network: host
+    image: carlsvelzm/airflowv2
+    # depends_on:
+    #   - superset
+    env_file:
+      - ./config/airflow_container.env
+      - ./config/minio.env
+      - ./config/shared_database.env
+    volumes:
+      - ./services/airflow/dags/:/usr/local/airflow/dags
+      - ./notebooks:/usr/local/airflow/data
+    ports:
+      #- 7777:8080 //Build
+      - 7777:8081 #//Image v2
+    command: webserver
+volumes:
+  minio_volume:
+  postgres_volume:
+  pgadmin_volume:
