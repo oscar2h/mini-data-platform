@@ -328,27 +328,6 @@ services:
         - ./config/superset_database.env
     ports:
       - 8088:8088
-  # Scheduling
-  airflow:
-    container_name: "airflow"
-    restart: "always"
-    # build: 
-    #   context: services/airflow
-    #   network: host
-    image: carlsvelzm/airflowv2
-    # depends_on:
-    #   - superset
-    env_file:
-      - ./config/airflow_container.env
-      - ./config/minio.env
-      - ./config/shared_database.env
-    volumes:
-      - ./services/airflow/dags/:/usr/local/airflow/dags
-      - ./notebooks:/usr/local/airflow/data
-    ports:
-      #- 7777:8080 //Build
-      - 7777:8081 #//Image v2
-    command: webserver
 volumes:
   postgres-db-volume:
   minio_volume:
