@@ -1,7 +1,7 @@
 version: '3.5'
 
 x-airflow-common: &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.9.0}
+  image: ${AIRFLOW_IMAGE_NAME:-z2hx/airflow}
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -19,6 +19,8 @@ x-airflow-common: &airflow-common
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/notebooks:/opt/airflow/notebooks
+    - ${AIRFLOW_PROJ_DIR:-.}/Proyectos/input:/opt/airflow/Proyectos/input
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -102,6 +104,7 @@ services:
     environment:
       <<: *airflow-common-env
       DUMB_INIT_SETSID: "0"
+      _PIP_ADDITIONAL_REQUIREMENTS: 'wget'
     restart: always
     depends_on:
       <<: *airflow-common-depends-on

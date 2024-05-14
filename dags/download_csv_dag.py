@@ -22,6 +22,16 @@ dag = DAG(
 # Define tasks
 download_csv_task = BashOperator(
     task_id='download_csv',
-    bash_command='wget -O /opt/airflow/dags/Churn_Modelling-1.csv https://raw.githubusercontent.com/xploiterx/datasets/master/Proyect-0/CSV/Churn_Modelling-1.csv',
+    bash_command='wget -O /opt/airflow/Proyectos/input/Churn_Modelling-1.csv https://raw.githubusercontent.com/xploiterx/datasets/master/Proyect-0/CSV/Churn_Modelling-1.csv',
     dag=dag,
 )
+
+cp_csv_task = BashOperator(
+    task_id='cp_csv',
+    bash_command='cp /opt/airflow/Proyectos/input/Churn_Modelling-1.csv /opt/airflow/notebooks',
+    dag=dag,
+)
+
+
+# Define task dependencies
+download_csv_task >> cp_csv_task
