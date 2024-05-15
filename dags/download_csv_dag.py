@@ -16,7 +16,7 @@ dag = DAG(
     'download_csv_dag',
     default_args=default_args,
     description='DAG to download and move CSV file',
-    schedule_interval='@daily',
+    schedule_interval=None,
 )
 
 # Define tasks
