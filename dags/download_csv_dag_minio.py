@@ -42,7 +42,7 @@ default_args = {
 
 # Definición del DAG
 dag = DAG(
-    'download_csv_dag',
+    'download_csv_dag_minio',
     default_args=default_args,
     description='DAG to download, move, and upload CSV file to Minio',
     schedule_interval=None,
