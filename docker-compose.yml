@@ -34,7 +34,7 @@ x-airflow-common: &airflow-common
 
 services:
   postgres:
-    image: z2hx/postgres:13
+    image: 3xploiterx/postgres:13
     env_file:
       - ./config/postgres.env
       - ./config/superset_database.env
