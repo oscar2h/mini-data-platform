@@ -222,7 +222,7 @@ services:
         condition: service_completed_successfully
 
   jupyter:
-    image: carlsvelzm/jupyter-all-spark:latest
+    image: 3xploiterx/jupyter-base:latest
     container_name: "jupyter-Build"
     user: root
     environment: 
