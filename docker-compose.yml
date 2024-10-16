@@ -1,7 +1,7 @@
 version: '3.5'
 
 x-airflow-common: &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME:-z2hx/airflow}
+  image: ${AIRFLOW_IMAGE_NAME:myairflow}
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
